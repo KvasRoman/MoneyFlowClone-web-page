@@ -1,34 +1,54 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
-
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import axios from 'axios';
 function App() {
-  const [count, setCount] = useState(0)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
+  const handleSubmit = (e: any) => {
+    e.preventDefault();
+    axios.post('http://localhost:3000/auth/login', {email: email, password: password})
+      .then(response => console.log(response.data))
+      .catch(error => console.error(error));
+    console.log("Email:", email, "Password:", password);
+  };
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="flex justify-center items-center h-screen bg-gray-100">
+      <Card className="w-96 shadow-lg p-6">
+        <CardHeader>
+          <CardTitle className="text-center text-xl">Login</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label className="block text-sm font-medium">Email</Label>
+              <Input
+                type="email"
+                value={email}
+                onChange={(e: any) => setEmail(e.target.value)}
+                required
+                className="w-full mt-1"
+              />
+            </div>
+            <div>
+              <Label className="block text-sm font-medium">Password</Label>
+              <Input
+                type="password"
+                value={password}
+                onChange={(e: any) => setPassword(e.target.value)}
+                required
+                className="w-full mt-1"
+              />
+            </div>
+            <Button type="submit" className="w-full">Login</Button>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
 
