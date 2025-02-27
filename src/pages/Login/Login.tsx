@@ -23,7 +23,7 @@ function Login(){
       e.preventDefault();
       const result = await dispatch(loginAccount({email,password}));
       if (loginAccount.fulfilled.match(result)) {
-        alert('signed in');
+        navigate('/dashboard');
       }
     };
     return( 

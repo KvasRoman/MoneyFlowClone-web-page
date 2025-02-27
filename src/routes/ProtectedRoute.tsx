@@ -5,7 +5,9 @@ import { useAppSelector } from '../store/hooks';
 const ProtectedRoute: React.FC = () => {
     const { isAuthenticated } = useAppSelector((state) => state.auth);
 
-    return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+    let result = isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+    
+    return result;
 };
 
 export default ProtectedRoute;

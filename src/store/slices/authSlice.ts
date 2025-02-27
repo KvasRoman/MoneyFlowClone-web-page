@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 
 import api from '../../api/axiosInstance';
+import { useAppDispatch } from '../hooks';
 
 
 // Define the auth state type
@@ -41,6 +42,7 @@ export const registerUser = createAsyncThunk(
         }
     }
 );
+
 export const loginAccount = createAsyncThunk(
     'auth/loginAccount',
     async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
@@ -59,7 +61,9 @@ export const logoutAccount = createAsyncThunk('auth/logoutAccount', async () => 
 const authSlice = createSlice({
     name: 'auth',
     initialState,
-    reducers: {},
+    reducers: {
+        
+    },
     extraReducers: (builder) => {
         builder
             //#region register user
@@ -86,10 +90,11 @@ const authSlice = createSlice({
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(loginAccount.fulfilled, (state, action: PayloadAction<{accessToken: string }>) => {
+            .addCase(loginAccount.fulfilled, (state, action: PayloadAction<{accessToken: string, user: any }>) => {
                 state.loading = false;
                 state.token = action.payload.accessToken;
                 state.isAuthenticated = true;
+                state.user = action.payload.user;
                 localStorage.setItem('token', action.payload.accessToken);
             })
             .addCase(loginAccount.rejected, (state, action) => {
