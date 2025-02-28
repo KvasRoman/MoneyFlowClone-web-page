@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { store } from '../store/store'; // Import the Redux store
-import { logoutAccount } from '../store/slices/authSlice';
+import { logoutAccount, updateAccessToken } from '../store/slices/authSlice';
 
 // Create an Axios instance
 const api = axios.create({
@@ -29,10 +29,14 @@ api.interceptors.request.use(
 // Handle errors globally
 api.interceptors.response.use(
     (response) => {
+        const {accessToken, ...res} = response.data;
         //add handling new token if there is one
-        if(response.data.accessToken){
+        if(accessToken){
         {
-            
+            console.log(accessToken)
+            store.dispatch(updateAccessToken(accessToken))
+            //update response data
+            response.data = res;
         }    
         }
         return response;

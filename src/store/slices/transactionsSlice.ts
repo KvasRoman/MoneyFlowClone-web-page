@@ -2,10 +2,12 @@ import { createSlice, PayloadAction,createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 
 import { config } from '../../config';
+import { RootState } from '../store';
+import api from '@/api/axiosInstance';
 
 // Define the auth state type
 interface TransactionState {
-    transactions: []
+    transactions: any[]
     
     
     loading: boolean;
@@ -18,51 +20,56 @@ const initialState: TransactionState = {
     loading: false,
     error: null,
 };
-export const loginUser = createAsyncThunk(
-    'auth/loginUser',
-    async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
+export const getTransactions = createAsyncThunk(
+    'transaction/get',
+    async (page: number, { rejectWithValue }) => {
         try {
-            const response = await axios.post(`${config.API_BASE_URL}/auth/login`, { email, password });
+            const response = await api.get(`/transaction/list?page=${page}`);
             return response.data; // Expecting { user: string, token: string }
         } catch (error: any) {
             return rejectWithValue(error.response?.data?.message || 'Login failed');
         }
     }
 );
-export const logoutUser = createAsyncThunk('auth/logoutUser', async () => {
-    localStorage.removeItem('token');
+export const createTransaction = createAsyncThunk('transaction/create', async (data: {amount: number, description: string, transactionDate: Date, currency: string}, {rejectWithValue}) => {
+    try {
+        const response = await api.post(`$/transaction/create`, data);
+        return response.data; // Expecting { user: string, token: string }
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data?.message || 'Login failed');
+    }
+
 });
 
-const authSlice = createSlice({
-    name: 'auth',
+const transactionSlice = createSlice({
+    name: 'transaction',
     initialState,
     reducers: {},
     extraReducers: (builder) => {
         builder
             // Login User
-            .addCase(loginUser.pending, (state) => {
+            .addCase(getTransactions.pending, (state) => {
                 state.loading = true;
                 state.error = null;
             })
-            .addCase(loginUser.fulfilled, (state, action: PayloadAction<{ user: string; token: string }>) => {
+            .addCase(getTransactions.fulfilled, (state, action: PayloadAction<{ transactions: any[]}>) => {
                 state.loading = false;
-                state.user = action.payload.user;
-                state.token = action.payload.token;
-                state.isAuthenticated = true;
-                localStorage.setItem('token', action.payload.token);
+                console.log(action.payload.transactions);
+                state.transactions = state.transactions.concat(action.payload.transactions);
             })
-            .addCase(loginUser.rejected, (state, action) => {
+            .addCase(getTransactions.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
             })
 
             // Logout User
-            .addCase(logoutUser.fulfilled, (state) => {
-                state.user = null;
-                state.token = null;
-                state.isAuthenticated = false;
-            });
+            // .addCase(logoutUser.fulfilled, (state) => {
+            //     state.user = null;
+            //     state.token = null;
+            //     state.isAuthenticated = false;
+            // });
     }
 });
 
-export default authSlice.reducer;
+export default transactionSlice.reducer;
+export const selectTransactions = (state: RootState) => state.transaction.transactions;

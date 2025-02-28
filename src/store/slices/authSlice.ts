@@ -62,7 +62,9 @@ const authSlice = createSlice({
     name: 'auth',
     initialState,
     reducers: {
-        
+        updateAccessToken: (state, action: PayloadAction<string>) => {
+            state.token = action.payload;
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -92,7 +94,7 @@ const authSlice = createSlice({
             })
             .addCase(loginAccount.fulfilled, (state, action: PayloadAction<{accessToken: string, user: any }>) => {
                 state.loading = false;
-                state.token = action.payload.accessToken;
+                // state.token = action.payload.accessToken;
                 state.isAuthenticated = true;
                 state.user = action.payload.user;
                 localStorage.setItem('token', action.payload.accessToken);
@@ -111,5 +113,5 @@ const authSlice = createSlice({
             //#endregion
     }
 });
-
+export const { updateAccessToken } = authSlice.actions;
 export default authSlice.reducer;
