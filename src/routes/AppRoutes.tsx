@@ -19,14 +19,12 @@ const AppRoutes: React.FC = () => {
 
                 {/* Protected Routes (Only accessible if authenticated) */}
                 <Route element={<ProtectedRoute />}>
-                    <Route element={<WithUserRoute />}>
-                        <Route element={<Layout />}>
-                            <Route path="/dashboard" element={<Dashboard />} />
-                            {/* <Route path="/reports" element={<Reports />} />
+                    <Route element={<Layout />}>
+                        <Route path="/dashboard" element={<Dashboard />} />
+                        {/* <Route path="/reports" element={<Reports />} />
                             <Route path="/settings" element={<Settings />} /> */}
-                        </Route>
                     </Route>
-                    <Route path="/finishUser" element={<CreateUser/>}/>
+                    <Route path="/finishUser" element={<CreateUser />} />
                 </Route>
 
                 {/* Redirect unknown routes */}
