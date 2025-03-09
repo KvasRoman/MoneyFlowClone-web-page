@@ -5,8 +5,6 @@ import ProtectedRoute from './ProtectedRoute';
 import Login from '@/pages/Login/Login';
 import Register from '@/pages/Register/RegisterAccount';
 import Layout from '@/common/Layout/Layout';
-import WithUserRoute from './WithUserRoute';
-import CreateUser from '@/pages/CreateUser/CreateUser';
 import Dashboard from '@/pages/Dashboard/Dashboard';
 
 const AppRoutes: React.FC = () => {
@@ -21,10 +19,12 @@ const AppRoutes: React.FC = () => {
                 <Route element={<ProtectedRoute />}>
                     <Route element={<Layout />}>
                         <Route path="/dashboard" element={<Dashboard />} />
+                        <Route path="/settings" element={<Dashboard />} />
+                        <Route path="/ai-assistant" element={<Dashboard />} />
+                        <Route path="/profile" element={<Dashboard />} />
                         {/* <Route path="/reports" element={<Reports />} />
                             <Route path="/settings" element={<Settings />} /> */}
                     </Route>
-                    <Route path="/finishUser" element={<CreateUser />} />
                 </Route>
 
                 {/* Redirect unknown routes */}

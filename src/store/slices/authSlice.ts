@@ -6,7 +6,7 @@ import { useAppDispatch } from '../hooks';
 
 // Define the auth state type
 interface AuthState {
-    user: string | null;
+    user: any | null;
     token: string | null;
     isAuthenticated: boolean;
     loading: boolean;
@@ -15,11 +15,22 @@ interface AuthState {
 
 const initialState: AuthState = {
     user: null,
-    token: localStorage.getItem('token') || null,
+    token: localStorage.getItem('token'),
     isAuthenticated: !!localStorage.getItem('token'),
     loading: false,
     error: null,
 };
+export const getProfile = createAsyncThunk(
+    'auth/getProfile',
+    async ({}, { rejectWithValue }) => {
+        try {
+            const response = await api.get(`/user/profile`);
+            return response.data; // Expecting { user: string, token: string }
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data?.message || 'Login failed');
+        }
+    }
+);
 export const registerAccount = createAsyncThunk(
     'auth/registerAccount',
     async ({ email, password }: { email: string; password: string }, { rejectWithValue }) => {
@@ -64,12 +75,27 @@ const authSlice = createSlice({
     reducers: {
         updateAccessToken: (state, action: PayloadAction<string>) => {
             state.token = action.payload;
+            localStorage.setItem('token', action.payload);
+            console.log("getItem",localStorage.getItem('token'));
         }
     },
     extraReducers: (builder) => {
         builder
-            //#region register user
-
+            
+            //#region get profile
+            .addCase(getProfile.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(getProfile.fulfilled, (state, action: PayloadAction<{accessToken: string }>) => {
+                state.loading = false;
+                state.token = action.payload.accessToken;
+                state.isAuthenticated = true;
+            })
+            .addCase(getProfile.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+            })
             //#endregion
             //#region register
             .addCase(registerAccount.pending, (state) => {
@@ -80,7 +106,6 @@ const authSlice = createSlice({
                 state.loading = false;
                 state.token = action.payload.accessToken;
                 state.isAuthenticated = true;
-                localStorage.setItem('token', action.payload.accessToken);
             })
             .addCase(registerAccount.rejected, (state, action) => {
                 state.loading = false;
@@ -97,7 +122,6 @@ const authSlice = createSlice({
                 // state.token = action.payload.accessToken;
                 state.isAuthenticated = true;
                 state.user = action.payload.user;
-                localStorage.setItem('token', action.payload.accessToken);
             })
             .addCase(loginAccount.rejected, (state, action) => {
                 state.loading = false;
