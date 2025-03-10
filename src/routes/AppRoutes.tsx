@@ -9,6 +9,7 @@ import Dashboard from '@/pages/Dashboard/Dashboard';
 
 const AppRoutes: React.FC = () => {
     return (
+        
         <Router>
             <Routes>
                 {/* Public Route */}

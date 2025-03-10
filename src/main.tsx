@@ -5,11 +5,12 @@ import { store } from './store/store';
 import App from './App.tsx'
 import { Provider } from 'react-redux';
 import AppRoutes from './routes/AppRoutes.tsx';
+import { BrowserRouter } from 'react-router-dom';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
-      <AppRoutes />
+        <AppRoutes />
     </Provider>
   </StrictMode>,
 )

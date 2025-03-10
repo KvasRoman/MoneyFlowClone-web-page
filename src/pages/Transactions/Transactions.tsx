@@ -21,11 +21,11 @@ function Transactions() {
     return (
         <>
 
-            <h1>hello</h1>
+
             <ul>
                 {transactions.map((t) => (
                     <li key={t.id}>
-                        {t.description}: ${t.amount} : ${t.currency}
+                        {t.description}: {t.amount} : {t.currency}
                     </li>
                 ))}
             </ul>

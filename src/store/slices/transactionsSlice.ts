@@ -35,7 +35,7 @@ export const getTransactions = createAsyncThunk(
 );
 export const createTransaction = createAsyncThunk('transaction/create', async (data: {amount: number, description: string, transactionDate: Date, currency: string}, {rejectWithValue}) => {
     try {
-        const response = await api.post(`$/transaction/create`, data);
+        const response = await api.post(`/transaction/create`, data);
         return response.data; // Expecting { user: string, token: string }
     } catch (error: any) {
         return rejectWithValue(error.response?.data?.message || 'Login failed');
@@ -49,7 +49,7 @@ const transactionSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            // Login User
+            //#region get transactions
             .addCase(getTransactions.pending, (state) => {
                 state.loading = true;
                 state.error = null;
@@ -64,13 +64,22 @@ const transactionSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload as string;
             })
-
-            // Logout User
-            // .addCase(logoutUser.fulfilled, (state) => {
-            //     state.user = null;
-            //     state.token = null;
-            //     state.isAuthenticated = false;
-            // });
+            //#endregion
+            //#region create transaction
+            .addCase(createTransaction.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(createTransaction.fulfilled, (state, action: PayloadAction<{ transaction: any}>) => {
+                state.loading = false;
+                console.log(action.payload);
+                //state.transactions = state.transactions.concat(action.payload);
+            })
+            .addCase(createTransaction.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+            })
+            //#region 
     }
 });
 
