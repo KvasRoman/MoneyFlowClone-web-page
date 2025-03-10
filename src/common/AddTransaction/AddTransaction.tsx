@@ -20,10 +20,26 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/label";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
+import { useAppDispatch } from "@/store/hooks";
+import { createTransaction } from "@/store/slices/transactionsSlice";
 
 function AddTransaction() {
+    const dispatch = useAppDispatch();
+
+    const handleSubmit = (dateTime: Date, amount: number, currency: string, description: string) => {
+        console.log("submited");
+        const result = dispatch(createTransaction({
+            amount,
+            description,
+            currency,
+            transactionDate: dateTime
+        }))
+        if (createTransaction.fulfilled.match(result)) {
+            console.log("done");
+        }
+    }
 
     return (
         <>
@@ -31,10 +47,10 @@ function AddTransaction() {
                 <DrawerTrigger>Open</DrawerTrigger>
                 <DrawerContent>
                     <DrawerHeader>
-                        <DrawerTitle>Are you absolutely sure?</DrawerTitle>
-                        <DrawerDescription>This action cannot be undone.</DrawerDescription>
+                        <DrawerTitle>Create transaction</DrawerTitle>
+                        <DrawerDescription>This action creates new transaction.</DrawerDescription>
                     </DrawerHeader>
-                    <TransactionForm />
+                    <TransactionForm onSubmit={handleSubmit}/>
                 </DrawerContent>
             </Drawer>
         </>
@@ -43,33 +59,45 @@ function AddTransaction() {
 interface TransactionFormProps {
     dateTime?: Date;
     amount?: number;
-
+    description?: string
+    currency? :string;
+    onSubmit: (dateTime: Date, amount: number, currency: string, description: string) => void;
 }
-const TransactionForm: React.FC<TransactionFormProps> = ({ dateTime = new Date(), amount = 0, currency = 'UAH' }) => {
+const TransactionForm: React.FC<TransactionFormProps> = ({ dateTime = new Date(), amount = 0, currency = 'UAH',description = "", onSubmit }) => {
     const [_dateTime, setDateTime] = useState(dateTime);
     const [_amount, setAmount] = useState(amount);
-
+    const [_currency, setCurrency] = useState(currency);
+    const [_description, setDescription] = useState(description);
     const [time, setTime] = useState(dateTime.toISOString().substring(11, 16));
     const [date, setDate] = useState(dateTime.toISOString().split("T")[0]);
 
+    useEffect(() => {
+        const fullDateString = `${date}T${time}:00.000Z`; 
+        setDateTime(new Date(fullDateString));
+    },
+[time,date])
 
-    const handleSubmit = () => {
-        console.log(dateTime);
-        console.log(amount)
+    const handleSubmit = (e: any) => {
+        e.preventDefault();
+        console.log(_dateTime);
+        console.log(amount);
+        console.log(currency);
+        onSubmit(_dateTime, _amount, _currency, _description);
     }
     return (
         <>
-            <form className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <Label className="block text-sm font-medium">Amount</Label>
                     <Input
                         type="nubmer"
+                        inputMode="numeric"
                         value={_amount}
                         onChange={(e: any) => setAmount(e.target.value)}
                         required
                         className="w-full mt-1"
                     />
-                    <Select>
+                    <Select value={_currency} onValueChange={(value) => setCurrency(value)}>
                         <SelectTrigger className="w-[100px]">
                             <SelectValue placeholder="UAH"/>
                         </SelectTrigger>
@@ -81,6 +109,16 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ dateTime = new Date()
                             </SelectGroup>
                         </SelectContent>
                     </Select>
+                </div>
+                <div>
+                    <Label className="block text-sm font-medium">Description</Label>
+                    <Input
+                        type="text"
+                        value={_description}
+                        onChange={(e: any) => setDescription(e.target.value)}
+                        required
+                        className="w-full mt-1"
+                    />
                 </div>
                 <div>
                     <Label className="block text-sm font-medium">Time</Label>
