@@ -23,27 +23,72 @@ import { Label } from "@/components/ui/label";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { useAppDispatch } from "@/store/hooks";
-import { createTransaction } from "@/store/slices/transactionsSlice";
-
-function AddTransaction() {
+import { createTransaction, editTransaction } from "@/store/slices/transactionsSlice";
+function EditTransaction({transaction, isOpen, onClose}: {transaction: any | null, isOpen: boolean, onClose: () => void}) {
     const dispatch = useAppDispatch();
-
-    const handleSubmit = (dateTime: Date, amount: number, currency: string, description: string) => {
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    
+    useEffect(() => {
+        setIsDrawerOpen(isOpen);
+    }, [isOpen])
+    const handleSubmit = async (dateTime: Date, amount: number, currency: string, description: string) => {
         console.log("submited");
-        const result = dispatch(createTransaction({
+        const result = await dispatch(editTransaction({
+            id: transaction.id,
             amount,
             description,
             currency,
             transactionDate: dateTime
         }))
+        console.log(result, "handle submit");
         if (createTransaction.fulfilled.match(result)) {
             console.log("done");
+            setIsDrawerOpen(false);
+        }
+    }
+    if(transaction)
+    return (
+        <>
+            <Drawer open={isDrawerOpen} onClose={onClose} onOpenChange={setIsDrawerOpen}>
+                <DrawerContent>
+                    <DrawerHeader>
+                        <DrawerTitle>Edit transaction</DrawerTitle>
+                        <DrawerDescription>This action edits transaction.</DrawerDescription>
+                    </DrawerHeader>
+                    <TransactionForm 
+                    dateTime={new Date(transaction?.transactionDate)}
+                    amount={transaction?.amount}
+                    description ={transaction?.description}
+                    currency={transaction?.currency} 
+                    onSubmit={handleSubmit} />
+                </DrawerContent>
+            </Drawer>
+        </>
+    )
+    return (<>
+    </>);
+}
+function AddTransaction() {
+    const dispatch = useAppDispatch();
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+    const handleSubmit = async (dateTime: Date, amount: number, currency: string, description: string) => {
+        console.log("submited");
+        const result = await dispatch(createTransaction({
+            amount,
+            description,
+            currency,
+            transactionDate: dateTime
+        }))
+        console.log(result, "handle submit");
+        if (createTransaction.fulfilled.match(result)) {
+            console.log("done");
+            setIsDrawerOpen(false);
         }
     }
 
     return (
         <>
-            <Drawer>
+            <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
                 <DrawerTrigger>Open</DrawerTrigger>
                 <DrawerContent>
                     <DrawerHeader>
@@ -146,4 +191,4 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ dateTime = new Date()
             </form>
         </>);
 }
-export default AddTransaction;
+export {AddTransaction, EditTransaction};

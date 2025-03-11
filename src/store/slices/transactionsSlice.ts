@@ -1,7 +1,4 @@
 import { createSlice, PayloadAction,createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-
-import { config } from '../../config';
 import { RootState } from '../store';
 import api from '@/api/axiosInstance';
 
@@ -36,13 +33,23 @@ export const getTransactions = createAsyncThunk(
 export const createTransaction = createAsyncThunk('transaction/create', async (data: {amount: number, description: string, transactionDate: Date, currency: string}, {rejectWithValue}) => {
     try {
         const response = await api.post(`/transaction/create`, data);
+        console.log(response);
         return response.data; // Expecting { user: string, token: string }
     } catch (error: any) {
         return rejectWithValue(error.response?.data?.message || 'Login failed');
     }
 
 });
+export const editTransaction = createAsyncThunk('transaction/edit', async (data: {id: string, amount: number, description: string, transactionDate: Date, currency: string}, {rejectWithValue}) => {
+    try {
+        const response = await api.put(`/transaction/${data.id}`, data);
+        console.log(response);
+        return response.data; // Expecting { user: string, token: string }
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data?.message || 'Login failed');
+    }
 
+});
 const transactionSlice = createSlice({
     name: 'transaction',
     initialState,
@@ -73,13 +80,14 @@ const transactionSlice = createSlice({
             .addCase(createTransaction.fulfilled, (state, action: PayloadAction<{ transaction: any}>) => {
                 state.loading = false;
                 console.log(action.payload);
-                //state.transactions = state.transactions.concat(action.payload);
+                state.transactions.push(action.payload);
+                state.transactions.sort((a, b) => a.transactionDate > b.transactionDate ? -1 : 1);
             })
             .addCase(createTransaction.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload as string;
             })
-            //#region 
+            //#endregion 
     }
 });
 

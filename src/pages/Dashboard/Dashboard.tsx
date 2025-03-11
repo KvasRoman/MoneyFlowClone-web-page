@@ -1,4 +1,4 @@
-import AddTransaction from "@/common/AddTransaction/AddTransaction";
+import {AddTransaction} from "@/common/AddTransaction/AddTransaction";
 import Transactions from "../Transactions/Transactions";
 
 function Dashboard(){
