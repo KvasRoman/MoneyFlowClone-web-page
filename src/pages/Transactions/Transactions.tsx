@@ -18,8 +18,9 @@ function Transactions() {
     }
     const handleEditClose = () => {
         setIsEditOpen(false);
-        setSelectedTransaction(null);
+        setTimeout(() => setSelectedTransaction(null),150);
     };
+    useEffect(() => {console.log(isEditOpen)}, [isEditOpen]);
     useEffect(() => {
         if (didMount.current) return;
         didMount.current = true;

@@ -37,6 +37,7 @@ function EditTransaction({transaction, isOpen, onClose}: {transaction: any | nul
         if (deleteTransaction.fulfilled.match(result)) {
             console.log("done");
             setIsDrawerOpen(false);
+            onClose();
         }
     }
     const handleSubmit = async (dateTime: Date, amount: number, currency: string, description: string) => {
@@ -54,7 +55,6 @@ function EditTransaction({transaction, isOpen, onClose}: {transaction: any | nul
             setIsDrawerOpen(false);
         }
     }
-    if(transaction)
     return (
         <>
             <Drawer open={isDrawerOpen} onClose={onClose} onOpenChange={setIsDrawerOpen}>
@@ -63,20 +63,21 @@ function EditTransaction({transaction, isOpen, onClose}: {transaction: any | nul
                         <DrawerTitle>Edit transaction</DrawerTitle>
                         <DrawerDescription>This action edits transaction.</DrawerDescription>
                     </DrawerHeader>
-                    <TransactionForm 
+                    {transaction 
+                    ? <TransactionForm 
                     includeDelete = {true}
                     onDelete={handleDelete}
                     dateTime={new Date(transaction?.transactionDate)}
                     amount={transaction?.amount}
                     description ={transaction?.description}
                     currency={transaction?.currency} 
-                    onSubmit={handleSubmit} />
+                    onSubmit={handleSubmit} /> 
+                    : <></>}
+                    
                 </DrawerContent>
             </Drawer>
         </>
     )
-    return (<>
-    </>);
 }
 function AddTransaction() {
     const dispatch = useAppDispatch();
