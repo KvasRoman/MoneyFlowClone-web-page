@@ -50,6 +50,16 @@ export const editTransaction = createAsyncThunk('transaction/edit', async (data:
     }
 
 });
+export const deleteTransaction = createAsyncThunk('transaction/delete', async (id: string, {rejectWithValue}) => {
+    try {
+        const response = await api.delete(`/transaction/${id}`);
+        
+        return {...response.data, id}; // Expecting { user: string, token: string }
+    } catch (error: any) {
+        return rejectWithValue(error.response?.data?.message || 'Login failed');
+    }
+
+});
 const transactionSlice = createSlice({
     name: 'transaction',
     initialState,
@@ -88,7 +98,45 @@ const transactionSlice = createSlice({
                 state.error = action.payload as string;
             })
             //#endregion 
-    }
+            //#region edit transaction
+            .addCase(editTransaction.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(editTransaction.fulfilled, (state, action: PayloadAction<{ id: string}>) => {
+                state.loading = false;
+                
+                const index = state.transactions.findIndex(t => t.id === action.payload.id);
+                if (index !== -1) {
+                    state.transactions[index] = action.payload;
+                }
+                state.transactions.sort((a, b) => a.transactionDate > b.transactionDate ? -1 : 1);
+            })
+            .addCase(editTransaction.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+            })
+            //#endregion
+            //#region delete transaction
+            .addCase(deleteTransaction.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+            })
+            .addCase(deleteTransaction.fulfilled, (state, action: PayloadAction<{ id: string}>) => {
+                state.loading = false;
+                
+                const index = state.transactions.findIndex(t => t.id === action.payload.id);
+                if (index !== -1) {
+                    state.transactions.splice(index, 1);
+                }
+                
+            })
+            .addCase(deleteTransaction.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload as string;
+            })
+            //#endregion
+        }
 });
 
 export default transactionSlice.reducer;

@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import React, { useEffect } from "react";
 import { useState } from "react";
 import { useAppDispatch } from "@/store/hooks";
-import { createTransaction, editTransaction } from "@/store/slices/transactionsSlice";
+import { createTransaction, deleteTransaction, editTransaction } from "@/store/slices/transactionsSlice";
 function EditTransaction({transaction, isOpen, onClose}: {transaction: any | null, isOpen: boolean, onClose: () => void}) {
     const dispatch = useAppDispatch();
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -31,6 +31,14 @@ function EditTransaction({transaction, isOpen, onClose}: {transaction: any | nul
     useEffect(() => {
         setIsDrawerOpen(isOpen);
     }, [isOpen])
+    const handleDelete = async () => {
+        const result = await dispatch(deleteTransaction(transaction.id))
+        console.log(result, "handle delete");
+        if (deleteTransaction.fulfilled.match(result)) {
+            console.log("done");
+            setIsDrawerOpen(false);
+        }
+    }
     const handleSubmit = async (dateTime: Date, amount: number, currency: string, description: string) => {
         console.log("submited");
         const result = await dispatch(editTransaction({
@@ -40,7 +48,7 @@ function EditTransaction({transaction, isOpen, onClose}: {transaction: any | nul
             currency,
             transactionDate: dateTime
         }))
-        console.log(result, "handle submit");
+        console.log(result, "handle edit");
         if (createTransaction.fulfilled.match(result)) {
             console.log("done");
             setIsDrawerOpen(false);
@@ -56,6 +64,8 @@ function EditTransaction({transaction, isOpen, onClose}: {transaction: any | nul
                         <DrawerDescription>This action edits transaction.</DrawerDescription>
                     </DrawerHeader>
                     <TransactionForm 
+                    includeDelete = {true}
+                    onDelete={handleDelete}
                     dateTime={new Date(transaction?.transactionDate)}
                     amount={transaction?.amount}
                     description ={transaction?.description}
@@ -106,9 +116,11 @@ interface TransactionFormProps {
     amount?: number;
     description?: string
     currency? :string;
+    includeDelete?: boolean;
+    onDelete?: () => void;
     onSubmit: (dateTime: Date, amount: number, currency: string, description: string) => void;
 }
-const TransactionForm: React.FC<TransactionFormProps> = ({ dateTime = new Date(), amount = 0, currency = 'UAH',description = "", onSubmit }) => {
+const TransactionForm: React.FC<TransactionFormProps> = ({ dateTime = new Date(), amount = 0, currency = 'UAH',description = "", onSubmit, includeDelete = false, onDelete }) => {
     const [_dateTime, setDateTime] = useState(dateTime);
     const [_amount, setAmount] = useState(amount);
     const [_currency, setCurrency] = useState(currency);
@@ -116,12 +128,16 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ dateTime = new Date()
     const [time, setTime] = useState(dateTime.toISOString().substring(11, 16));
     const [date, setDate] = useState(dateTime.toISOString().split("T")[0]);
 
+    
     useEffect(() => {
         const fullDateString = `${date}T${time}:00.000Z`; 
         setDateTime(new Date(fullDateString));
     },
 [time,date])
-
+    const deleteClick = (e: any) => {
+        e.stopPropagation()
+        onDelete!();
+    }
     const handleSubmit = (e: any) => {
         e.preventDefault();
         console.log(_dateTime);
@@ -134,13 +150,14 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ dateTime = new Date()
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
                     <Label className="block text-sm font-medium">Amount</Label>
+                    <div>
                     <Input
                         type="nubmer"
                         inputMode="numeric"
                         value={_amount}
                         onChange={(e: any) => setAmount(e.target.value)}
                         required
-                        className="w-full mt-1"
+                        className="mt-1"
                     />
                     <Select value={_currency} onValueChange={(value) => setCurrency(value)}>
                         <SelectTrigger className="w-[100px]">
@@ -154,6 +171,7 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ dateTime = new Date()
                             </SelectGroup>
                         </SelectContent>
                     </Select>
+                    </div>
                 </div>
                 <div>
                     <Label className="block text-sm font-medium">Description</Label>
@@ -186,7 +204,10 @@ const TransactionForm: React.FC<TransactionFormProps> = ({ dateTime = new Date()
                     />
                 </div>
                 <DrawerFooter>
-                    <Button type="submit">Submit</Button>
+                    <div className="w-full">
+                    <Button type="submit" className="text-gray-950">Submit</Button>
+                    {includeDelete ? <Button className="text-gray-950" onClick={deleteClick}>Delete</Button> : <></>}
+                    </div>
                 </DrawerFooter>
             </form>
         </>);
