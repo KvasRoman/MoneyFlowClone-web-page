@@ -1,12 +1,14 @@
-import {AddTransaction} from "@/common/AddTransaction/AddTransaction";
+import { AddTransaction } from "@/common/AddTransaction/AddTransaction";
 import Transactions from "../Transactions/Transactions";
 
-function Dashboard(){
+function Dashboard() {
     return (<>
-        <h1>hello Dashboard</h1>
+        <div className="h-full">
+            <h1>Dashboard</h1>
 
-        <Transactions/>
-        <AddTransaction />
+            <Transactions />
+            <AddTransaction />
+        </div>
     </>)
 }
 export default Dashboard;

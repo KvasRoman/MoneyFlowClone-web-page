@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction,createAsyncThunk } from '@reduxjs/toolkit';
 import { RootState } from '../store';
 import api from '@/api/axiosInstance';
+import { useSelector } from 'react-redux';
 
 // Define the auth state type
 interface TransactionState {
@@ -19,9 +20,11 @@ const initialState: TransactionState = {
 };
 export const getTransactions = createAsyncThunk(
     'transaction/get',
-    async (page: number, { rejectWithValue }) => {
+    async (page: number, { rejectWithValue, getState }) => {
         try {
-            
+            const state = getState() as RootState;
+            if (state.transaction.loadedPages.includes(page)) 
+                return rejectWithValue(`Page ${page} is already loaded`);
             const response = await api.get(`/transaction/list?page=${page}`);
             response.data.page = page;
             return response.data; // Expecting { user: string, token: string }

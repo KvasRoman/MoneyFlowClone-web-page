@@ -6,6 +6,7 @@ import Login from '@/pages/Login/Login';
 import Register from '@/pages/Register/RegisterAccount';
 import Layout from '@/common/Layout/Layout';
 import Dashboard from '@/pages/Dashboard/Dashboard';
+import AIChat from '@/pages/AIChat/AIChat';
 
 const AppRoutes: React.FC = () => {
     return (
@@ -21,7 +22,7 @@ const AppRoutes: React.FC = () => {
                     <Route element={<Layout />}>
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/settings" element={<Dashboard />} />
-                        <Route path="/ai-assistant" element={<Dashboard />} />
+                        <Route path="/ai-assistant" element={<AIChat />} />
                         <Route path="/profile" element={<Dashboard />} />
                         {/* <Route path="/reports" element={<Reports />} />
                             <Route path="/settings" element={<Settings />} /> */}
