@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { io } from  "socket.io-client"
+import { io, Socket } from  "socket.io-client"
 import { Button } from "@/components/ui/button";
 
 const accessToken = localStorage.getItem("token");
@@ -10,32 +10,36 @@ const accessToken = localStorage.getItem("token");
 export default function AIChat() {
   const [messages, setMessages] = useState<{ message: string; user: "user" | "Ollama" }[]>([]);
   const [input, setInput] = useState("");
-  const socket = io("http://localhost:3004", {
-    transports: ["websocket"],
-    auth: {
-      token: `${accessToken}`, // Replace with your actual token
-    },
-  });
+  const socket = useRef<Socket | null>(null);
   const sendMessage = () => {
     if (input.trim()) {
-      socket.emit("sendMessage", input);
+      const message = {
+        user: "Temp",
+        message: input
+      }
+      socket.current?.emit("sendMessage", message);
       setMessages((prev) => [...prev, {message: input, user: "user"}])
       setInput(""); // Clear input after sending
     }
   };
   useEffect(() => {
-    
-
-    socket.on("connect", () => {
-      console.log("Connected with socket id:", socket.id);
+    socket.current = io("http://localhost:3004", {
+      transports: ["websocket"],
+      auth: {
+        token: `${accessToken}`, // Replace with your actual token
+      },
     });
 
-    socket.on("connect_error", (err) => {
+    socket.current?.on("connect", () => {
+      console.log("Connected with socket id:", socket.current?.id);
+    });
+
+    socket.current?.on("connect_error", (err) => {
       console.error("Connection error:", err);
     });
 
     return () => {
-      socket.disconnect();
+      socket.current?.disconnect();
     };
   }, []);
   useEffect(() => {
