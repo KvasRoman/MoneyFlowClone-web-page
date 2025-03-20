@@ -42,28 +42,6 @@ export default function AIChat() {
       socket.current?.disconnect();
     };
   }, []);
-  useEffect(() => {
-    // socket.on("receiveMessage", (msg) => {
-    //     console.log(msg, "msg");
-    //   setMessages((prev) => [...prev, msg]);
-    // });
-
-    // return () => {
-    //   socket.off("receiveMessage"); // Cleanup listener on unmount
-    // };
-  }, []);
-//   const sendMessage1 = () => {
-//     if (!input.trim()) return;
-
-//     const newMessages = [...messages, { message: input, user: "user" }];
-//     setMessages(newMessages);
-//     setInput("");
-
-//     // Simulate bot response
-//     setTimeout(() => {
-//       setMessages((prev) => [...prev, { message: "Hello! How can I help?", user: "Ollama" }]);
-//     }, 1000);
-//   };
 
   return (
     
