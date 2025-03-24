@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { io, Socket } from  "socket.io-client"
 import { Button } from "@/components/ui/button";
 
-const accessToken = localStorage.getItem("token");
+
 
 
 export default function AIChat() {
@@ -23,6 +23,7 @@ export default function AIChat() {
     }
   };
   useEffect(() => {
+    const accessToken = localStorage.getItem("token");
     socket.current = io("http://localhost:3004", {
       transports: ["websocket"],
       auth: {
